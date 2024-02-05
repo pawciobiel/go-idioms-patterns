@@ -20,7 +20,7 @@ Links to various information about the language in one place...
 
 [Google I/O 2013 - Advanced Go Concurrency Patterns](https://www.youtube.com/watch?v=QDDwwePbDtw)
 [https://go.dev/talks/2013/advconc/](https://go.dev/talks/2013/advconc/)
-1. [ping-pong](#ping_pong)
+1. [ping-pong](#ping-pong)
 1. [RSS feed reader](#rss-feed-reader)
 
 [Twelve Go Best Practices - Francesc Campoy](https://www.youtube.com/watch?v=8D3Vmm1BGoY)
@@ -39,8 +39,8 @@ Google golang talks:
 1. [https://go.dev/talks/2019/](https://go.dev/talks/2019/)
 
 
-
-## Using channels
+## Google I/O 2012 Go Concurrency Patterns - Rob Pike
+### Using channels
 
 When the main function executes `<-c`, it will wait for a value to be sent.
 
@@ -55,14 +55,14 @@ Thus channels both communicate and synchronize.
 [using_channels/using_channels.go](using_channels/using_channels.go)
 
 
-## Generator: function that returns a channel
+### Generator: function that returns a channel
 
 Channels are first-class values, just like strings or integers.
 
 [generator/generator.go](generator/generator.go)
 
 
-## Channels as handle on a service
+### Channels as handle on a service
 Our boring function returns a channel that lets us communicate with the boring service it provides.
 
 We can have more instances of the service.
@@ -70,51 +70,51 @@ We can have more instances of the service.
 [hanle_on_a_service/hanle_on_a_service.go](hanle_on_a_service/hanle_on_a_service.go)
 
 
-## Multiplexing
+### Multiplexing
 These programs make Joe and Ann count in lockstep.
 We can instead use a fan-in function to let whosoever is ready talk.
 [multiplexing/multiplexing.go](multiplexing/multiplexing.go)
 
 
-## Restoring sequencing
+### Restoring sequencing
 Send a channel on a channel, making goroutine wait its turn.
 Receive all messages, then enable them again by sending on a private channel.
 First we define a message type that contains a channel for the reply.
 [sequencing/sequencing.go](sequencing/sequencing.go)
 
 
-## Fan-in using select
+### Fan-in using select
 Rewrite our original fanIn function. Only one goroutine is needed. New:
 [fanin_select/fanin_select.go](fanin_select/fanin_select.go)
 
 
-## Timeout using select
+### Timeout using select
 The time.After function returns a channel that blocks for the specified duration.
 After the interval, the channel delivers the current time, once.
 [timeout_select/timeout_select.go](timeout_select/timeout_select.go)
 
 
-## Timeout for whole conversation using select
+### Timeout for whole conversation using select
 Create the timer once, outside the loop, to time out the entire conversation.
 (In the previous program, we had a timeout for each message.)
 [timeout_whole_select/timeout_whole_select.go](timeout_whole_select/timeout_whole_select.go)
 
 
-## Quit channel
+### Quit channel
 We can turn this around and tel Joe to stop when we're tired of listening to him.
 [quit_channel/quit_channel.go](quit_channel/quit_channel.go)
 
 
-## Receive on quit channel
+### Receive on quit channel
 How do we know it's finished? Wait for it to tell us it's done: receive on the quite channel
 [receive_on_quit_channel/receive_on_quit_channel.go](receive_on_quit_channel/receive_on_quit_channel.go)
 
 
-## Daisy-chain
+### Daisy-chain
 100'000 goroutines
 [daisy_chain/daisy_chain.go](daisy_chain/daisy_chain.go)
 
-## Google Search: A fake framework
+### Google Search: A fake framework
 We can simulate the search function, much as we simulated conversation before.
 [google1.0/google1.0.go](google1.0/google1.0.go)
 
@@ -135,9 +135,11 @@ Replicas
 Return the fastest from replicas.
 [google3.0/google3.0.go](google3.0/google3.0.go)
 
-## ping-pong
+## Google I/O 2013 - Advanced Go Concurrency Patterns
+
+### ping-pong
 [ping_pong/ping_pong.go](ping_pong/ping_pong.go)
 
-## RSS feed reader
+### RSS feed reader
 Naive and buggy RSS reader
 [rss_feed_reader1/rss_feed_reader1.go](rss_feed_reader1/rss_feed_reader1.go)
