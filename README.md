@@ -40,7 +40,7 @@ Google golang talks:
 
 
 
-## Using channels [](#){name=using_channels}
+## Using channels [](#name=using_channels)
 
 When the main function executes `<-c`, it will wait for a value to be sent.
 
@@ -52,18 +52,14 @@ Otherwise we wait until they are.
 
 Thus channels both communicate and synchronize.
 
-```go:using_channels/using_channels.go
-
-```
+[](using_channels/using_channels.go)
 
 
-## Generator: function that returns a channel [](#){name=generator}
+## Generator: function that returns a channel [](#name=generator)
 
 Channels are first-class values, just like strings or integers.
 
-```go:generator/generator.go
-
-```
+[](generator/generator.go)
 
 
 ## Channels as handle on a service [](#){name=handle_on_a_service}
