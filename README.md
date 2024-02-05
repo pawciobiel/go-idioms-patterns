@@ -3,9 +3,9 @@ Links to various information about the language in one place...
 
 [Google I/O 2012 Go Concurrency Patterns - Rob Pike](https://www.youtube.com/watch?v=f6kdp27TYZs)
 [source](https://go.dev/talks/2012/concurrency/support/)
-1. [Using channels](#using_channels)
-1. [Generator: function that returns a channel](#generator)
-1. [Channels as handle on a service](#handle_on_a_service)
+1. [Using channels](#using-channels)
+1. [Generator: function that returns a channel](#generator-function-that-returns-a-channel)
+1. [Channels as handle on a service](#channels-as-handle-on-a-service)
 1. [Multiplexing](#multiplexing)
 1. [Restoring sequencing](#sequencing)
 1. [Fan-in using select](#fanin_select)
@@ -52,14 +52,14 @@ Otherwise we wait until they are.
 
 Thus channels both communicate and synchronize.
 
-[using_channels/using_channels.go]
+[using_channels/using_channels.go](using_channels/using_channels.go)
 
 
 ## Generator: function that returns a channel
 
 Channels are first-class values, just like strings or integers.
 
-[generator/generator.go]
+[generator/generator.go](generator/generator.go)
 
 
 ## Channels as handle on a service
@@ -67,8 +67,7 @@ Our boring function returns a channel that lets us communicate with the boring s
 
 We can have more instances of the service.
 
-```go:hanle_on_a_service/hanle_on_a_service.go
-```
+[hanle_on_a_service/hanle_on_a_service.go](hanle_on_a_service/hanle_on_a_service.go)
 
 
 ## Multiplexing
