@@ -141,5 +141,5 @@ Return the fastest from replicas.
 [ping_pong/ping_pong.go](ping_pong/ping_pong.go)
 
 ### RSS feed reader
-Naive and buggy RSS reader
-[rss_feed_reader1/rss_feed_reader1.go](rss_feed_reader1/rss_feed_reader1.go)
+Naive and buggy RSS reader [rss_feed_reader1/rss_feed_reader1.go](rss_feed_reader1/rss_feed_reader1.go)
+Fixed rss reader [realmain.go](https://go.dev/talks/2013/advconc/realmain/realmain.go)
