@@ -40,7 +40,7 @@ Google golang talks:
 
 
 
-## Using channels [](#name=using_channels)
+## Using channels
 
 When the main function executes `<-c`, it will wait for a value to be sent.
 
@@ -52,17 +52,17 @@ Otherwise we wait until they are.
 
 Thus channels both communicate and synchronize.
 
-[](using_channels/using_channels.go)
+[using_channels/using_channels.go]
 
 
-## Generator: function that returns a channel [](#name=generator)
+## Generator: function that returns a channel
 
 Channels are first-class values, just like strings or integers.
 
-[](generator/generator.go)
+[generator/generator.go]
 
 
-## Channels as handle on a service [](#){name=handle_on_a_service}
+## Channels as handle on a service
 Our boring function returns a channel that lets us communicate with the boring service it provides.
 
 We can have more instances of the service.
@@ -71,7 +71,7 @@ We can have more instances of the service.
 ```
 
 
-## Multiplexing [](#){name=multiplexing}
+## Multiplexing
 These programs make Joe and Ann count in lockstep.
 We can instead use a fan-in function to let whosoever is ready talk.
 ```go:multiplexing/multiplexing.go
@@ -79,7 +79,7 @@ We can instead use a fan-in function to let whosoever is ready talk.
 ```
 
 
-## Restoring sequencing [](#){name=sequencing}
+## Restoring sequencing
 Send a channel on a channel, making goroutine wait its turn.
 Receive all messages, then enable them again by sending on a private channel.
 First we define a message type that contains a channel for the reply.
@@ -88,14 +88,14 @@ First we define a message type that contains a channel for the reply.
 ```
 
 
-## Fan-in using select [](#){name=fanin_select}
+## Fan-in using select
 Rewrite our original fanIn function. Only one goroutine is needed. New:
 ```go:fanin_select/fanin_select.go
 
 ```
 
 
-## Timeout using select [](#){name=timeout_select}
+## Timeout using select
 The time.After function returns a channel that blocks for the specified duration.
 After the interval, the channel delivers the current time, once.
 ```go:timeout_select/timeout_select.go
@@ -103,7 +103,7 @@ After the interval, the channel delivers the current time, once.
 ```
 
 
-## Timeout for whole conversation using select [](#){name=timeout_whole_select}
+## Timeout for whole conversation using select
 Create the timer once, outside the loop, to time out the entire conversation.
 (In the previous program, we had a timeout for each message.)
 ```go:timeout_whole_select/timeout_whole_select.go
@@ -111,27 +111,27 @@ Create the timer once, outside the loop, to time out the entire conversation.
 ```
 
 
-## Quit channel [](#){name=quit_channel}
+## Quit channel
 We can turn this around and tel Joe to stop when we're tired of listening to him.
 ```go:quit_channel/quit_channel.go
 
 ```
 
 
-## Receive on quit channel [](#){name=receive_on_quit_channel}
+## Receive on quit channel
 How do we know it's finished? Wait for it to tell us it's done: receive on the quite channel
 ```receive_on_quit_channel/receive_on_quit_channel.go
 
 ```
 
 
-## Daisy-chain [](#){name=daisy_chain}
+## Daisy-chain
 100'000 goroutines
 ```daisy_chain/daisy_chain.go
 
 ```
 
-## Google Search: A fake framework [](#){name=google_search}
+## Google Search: A fake framework
 We can simulate the search function, much as we simulated conversation before.
 ```google1.0/google1.0.go
 ```
@@ -156,11 +156,11 @@ Return the fastest from replicas.
 ```google3.0/google3.0.go
 ```
 
-## ping-pong [](#){name=ping_pong}
+## ping-pong
 ```ping_pong/ping_pong.go
 ```
 
-## RSS feed reader [](#){name=rss_feed_reader}
+## RSS feed reader
 Naive and buggy RSS reader
 ```rss_feed_reader1/rss_feed_reader1.go
 ```
