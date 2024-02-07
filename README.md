@@ -507,7 +507,218 @@ type waiter struct {
     c chan []Item
 }
 
+type state struct {
+    items []Item
+    wait []waiter
+}
+
+type Queue struct {
+    s chan state
+}
+
+func NewQueue() *Queue {
+    s := make(chan state, 1)
+    s <- state{}
+    return &Queue{s}
+}
+
+func (q *Queue) GetMany(n int) []Item{
+    s := <-q.s
+    if len(s.wait) == 0 && len(s.items) >= n {
+        items := s.items[:n:n]
+        s.items = s.items[n:]
+        q.s <- s
+        return items
+    }
+    c := make(chan []Item)
+    s.wait = append(s.wait, waiter{n, c})
+    q.s <- s
+    return <-c
+}
+
+func (q *Queue) Put(item Item) {
+    s := <-q.s
+    s.items = append(s.items, item)
+    for len(s.wait) > 0 {
+        w := s.wait[0]
+        if len(s.items) <- w.n {
+            break
+        }
+        w.c <- s.items[:w.n:w.n]
+        w.items = s.items[w.n:]
+        s.wait = s.wait[1:]
+    }
+    q.s <- s
+}
+
+// TODO cancelation
 ```
+
+
+### condition variable: repeating transition
+```go
+type Idler struct {
+    mu syn.Mutex
+    idle sync.cond
+    busy bool
+    idles int64
+}
+
+func (i *Idler) AwaitIdle() {
+    i.mu.Lock()
+    defer i.mu.Unlock()
+    idles := i.idles
+    for i.busy && idles == i.idles {
+        i.idle.Wait()
+    }
+}
+
+func (i *Idler) SetBusy(b bool) {
+    i.mu.Lock()
+    defer i.mu.Unlock()
+    wasBusy := i.busy
+    i.busy = b
+    if wasBusy && !i.busy {
+        i.idles++
+        i.idle.Broadcast()
+    }
+}
+
+func NewIdler() *Idler {
+    i := new(Idler)
+    i.idle.L = &i.mu
+    return i
+}
+```
+
+* we need to store state explicitly (One may think we need to store only current state - the busy boolean,
+  but that turns out to be very subtle decision.) If `AwaitIdle` boot only until it saw a non busy state
+  it would be possible to boot from busy to idle and back before `AwaitIdle` got a chance to check,
+  and we would miss short idle events.
+* go condition variables unlike pthread condition variables don't have spurious wakeups so in theory
+  we could return from `AwaitIdle()` unconditionally after the first wait call.
+* it's common for condition based code to overs-signal - for eg, to work around a non diagnosed deadlock - 
+  so to avoid introducing subtle problems latter it's best to keep the code robust to spurious wakeups.
+  Instead we could track cumulative counting events and wait until we either catch the idle events in progress
+  or observe it's effect on a counter.
+
+
+### communication: repeating transition
+**We could avoid the double state transition entirely by communicating the transition instead of signaling it
+ and we can plum in the cancelation to boot. We can broadcast a state transition by closing a channel**
+- a state transition marks the completion of the previous state
+- and closing a channel marks the completion of communication of that channel
+```go
+type Idler struct {
+    next chan chan struct{}
+}
+
+func (i *Idler) AwaitIdle(ctx context.Context) error {
+    idle := <- i.next
+    i.next <- idle
+    if idle != nil {
+        select {
+            case <-ctx.Done():
+                return ctx.Err()
+            case <-idle:
+                // idle
+        }
+    }
+    return nil
+}
+
+func (i *Idler) SetBusy(b bool) {
+    idle := <- i.next
+    if b && (idle == nil) {
+        idle = make(chan struct{})
+    } else if ~b && (idle != nil) {
+        close(idle)  /// Idle now.
+        idle = nil
+    }
+    i.next <- idle
+}
+
+func NewIdler() *Idler {
+    next := make(chan [...], 1)
+    next <- nil
+    return &Idler{next}
+}
+
+```
+_Allocate the channel ti be closed when the event starts,
+or when the first waiter appear._
+
+### worker pool
+
+```go
+work := make(chan Task)
+for n := limit; n > 0; n-- {
+    go func() {
+        for task := range work {
+            perform(task)
+        }
+    }()
+}
+
+for _, task := range hudgeSlice {
+    work <- task  // sender blocks untill the worker is available to receive
+}
+```
+* leaks workers forever!
+
+```go
+work := make(chan Task)
+var wg sync.WaitGroup
+for n := limit; n > 0; n-- {
+    wg.Add(1)
+    go func() {
+       for task := range work {
+           perform(task)
+       }
+       wg.Done()
+    }()
+}
+
+for _, task := range hudgeSlice {
+    work <- task
+}
+close(work)
+wg.Wait()
+```
+
+### waitgroup: distributed (unlimited) work
+**Start goroutine when you have concurrent work _to do now_.**
+- and let them exit as soon as the work is done...
+
+```go
+var wg sync.WaitGroup
+for _, task := range hudgeSlice {
+    wg.Add(1)
+    go func(task Task) {
+        perform(task)
+        wg.Done()
+    }(task)
+}
+wg.Wait()
+```
+- but now we need to figure out how to limit the work again... 
+
+### semaphore channel: limiting concurrency
+ - semaphore channel: inverted worker pool
+```go
+sem := make(chan token, limit)
+for _, task := range hudgeSlice {
+    sem <- token{}
+    go func(task Task) {
+        perform(task)
+        <-sem
+    }(task)
+}
+for n := limit; n > 0; n-- {  // wait for the last tasks to finish
+    sem <- token{}
+}
+```
+* WaitGroup allows further add calls during wait while our `sem` does not.
 
 
 
