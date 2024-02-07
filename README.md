@@ -18,6 +18,22 @@ Links to various information about the language in one place...
 
 [GopherCon 2018: Bryan C. Mills - Rethinking Classical Concurrency Patterns](https://www.youtube.com/watch?v=5zXAHh5tJqQ)
 1. [Future: API](#future-api)
+1. [Producer-Consumer Queue: API](#producer-consumer-queue-api)
+1. [Caller-side concurrency: synchronous API](#caller-side-concurrency-synchronous-api)
+1. [Internal, caller-side concurrency: channels](#internal-caller-side-concurrency-channels)
+1. [Condition variable: setup](#condition-variable-setup)
+1. [Condition variable: wait and signal](#condition-variable-wait-and-signal)
+1. [Condition variable: broadcast](#condition-variable-broadcast)
+1. [Condition variable: resource pool](#condition-variable-resource-pool)
+1. [Communication: resource pool](#communication-resource-pool)
+1. [communication: queue](#communication-queue)
+1. [specific communication: queue](#specific-communication-queue)
+1. [condition variable: repeating transition](#condition-variable-repeating-transition)
+1. [communication: repeating transition](#communication-repeating-transition)
+1. [worker pool](#worker-pool)
+1. [waitgroup: distributed (unlimited) work](#waitgroup-distributed-unlimited-work)
+1. [semaphore channel: limiting concurrency](#semaphore-channel-limiting-concurrency)
+
 
 [Google I/O 2013 - Advanced Go Concurrency Patterns](https://www.youtube.com/watch?v=QDDwwePbDtw)
 [https://go.dev/talks/2013/advconc/](https://go.dev/talks/2013/advconc/)
@@ -406,7 +422,7 @@ func (p *Pool) Acquire(c net.Conn) net.Conn, error {
     
 }
 ```
-# Communication: resource pool
+### Communication: resource pool
 
 > A buffered channel can be used like a semaphore [...].
 > The capacity of the channel buffer limits the number of simultaneous calls
@@ -457,7 +473,7 @@ func (p *Pool) Acquire(ctx context.Context) (net.Conn, error) {
 * when we block on communicating, others can also communicate with us:
   for example, to cancel the call.
 
-# communication: queue
+### communication: queue
 ```go
 type Queue struct {
     items chan [Item]  // non-empty slices only
@@ -649,6 +665,7 @@ _Allocate the channel ti be closed when the event starts,
 or when the first waiter appear._
 
 ### worker pool
+* leaks workers forever!
 
 ```go
 work := make(chan Task)
@@ -664,7 +681,6 @@ for _, task := range hudgeSlice {
     work <- task  // sender blocks untill the worker is available to receive
 }
 ```
-* leaks workers forever!
 
 ```go
 work := make(chan Task)
